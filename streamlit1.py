@@ -64,6 +64,12 @@ if st.button('Generate Data'):
                         file_name="synthetic_data.csv",
                         mime="text/csv"
                     )
+                    st.download_button(
+                        label="Download as JSON",
+                        data=generated_data,
+                        file_name="synthetic_data.json",
+                        mime="application/json"
+                    )
                 except:
                     st.text("Generated Response:")
                     st.text(generated_data)

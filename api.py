@@ -9,6 +9,7 @@ from llama_index.core import (
     SimpleDirectoryReader,
     StorageContext,
     load_index_from_storage,
+    Settings
 )
 
 from llama_index.vector_stores.chroma import ChromaVectorStore
@@ -36,9 +37,9 @@ llm = TogetherLLM(
     model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
     api_key=together_api_key,
     temperature=0.1,
-    max_tokens=16000
 )
-
+Settings.llm = llm
+Settings.embed_model = embed_model
 # Use try-except block to handle database initialization errors
 try:
     db = chromadb.PersistentClient(path="./chroma_db")
@@ -98,17 +99,15 @@ async def process_request(request: str = Form(...), file: Optional[UploadFile] =
 
 
             try:
-                parser = LlamaParse(
-                result_type="markdown"  # "markdown" and "text" are available
-                )
-                file_extractor = {".pdf": parser}
-                documents = SimpleDirectoryReader(input_files=[temp_file_path], file_extractor=file_extractor).load_data()
+                
+                documents = SimpleDirectoryReader(input_files=[temp_file_path]).load_data()
 
                 #documents = LlamaParse.load_data(file_path=temp_file_path)
 
                 index = VectorStoreIndex.from_documents(
                     documents, storage_context=storage_context,
-                    embed_model=embed_model
+                    embed_model=embed_model,
+                    llm=llm
                 )
                 query_engine = index.as_query_engine()
             except Exception as e:
@@ -138,7 +137,7 @@ async def process_request(request: str = Form(...), file: Optional[UploadFile] =
         # Validate JSON response
         try:
           # Validate JSON
-            return {"status": "success", "data": response.text}
+            return {"status": "success", "data": response.text if hasattr(response, 'text') else response.response}
         except json.JSONDecodeError:
             raise HTTPException(status_code=500, detail="Generated data is not valid JSON.")
 
