@@ -127,9 +127,11 @@ celerybeat.pid
 env/
 venv/
 ENV/
+enviorment/
 env.bak/
 venv.bak/
-
+#chroma db
+chroma_db/
 # Spyder project settings
 .spyderproject
 .spyproject

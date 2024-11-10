@@ -70,6 +70,6 @@ if st.button('Generate Data'):
             else:
                 st.error(f"Error: {result.get('message', 'Unknown error')}")
         else:
-            st.error("Failed to communicate with backend server")
+            st.error(f"Failed to communicate with backend server {response.json()} ")
 
             
