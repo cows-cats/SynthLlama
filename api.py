@@ -10,11 +10,17 @@ from llama_index.core import (
     StorageContext,
     load_index_from_storage,
 )
+
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_parse import LlamaParse
 import tempfile
 import os
 import chromadb
+
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 # Security improvement: Validate environment variable
 if not (together_api_key := os.getenv("TOGETHER_API_KEY")):
@@ -78,10 +84,26 @@ async def process_request(request: str = Form(...), file: Optional[UploadFile] =
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
                 content = await file.read()
                 temp_file.write(content)
-                temp_file_path = temp_file.name
+
+            uploaded_dir = "uploaded_files"
+
+            if not os.path.exists(uploaded_dir):
+                os.makedirs(uploaded_dir)
+
+            temp_file_name = temp_file.name
+
+            temp_file_path = os.path.join(uploaded_dir, temp_file_name)
+
 
             try:
-                documents = LlamaParse.load_data(file_path=temp_file_path)
+                parser = LlamaParse(
+                result_type="markdown"  # "markdown" and "text" are available
+                )
+                file_extractor = {".pdf": parser}
+                documents = SimpleDirectoryReader(input_files=[temp_file_path], file_extractor=file_extractor).load_data()
+
+                #documents = LlamaParse.load_data(file_path=temp_file_path)
+
                 index = VectorStoreIndex.from_documents(
                     documents, storage_context=storage_context,
                     embed_model=embed_model
@@ -138,3 +160,7 @@ async def get_formats():
         "dialogue_format"
     ]
     return {"formats": formats}
+
+import uvicorn
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
