@@ -29,6 +29,8 @@ embed_model = TogetherEmbedding(
 llm = TogetherLLM(
     model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
     api_key=together_api_key,
+    temperature=0.1,
+    max_tokens=16000
 )
 
 # Use try-except block to handle database initialization errors
@@ -48,14 +50,14 @@ class DataRequest(BaseModel):
 
 def get_format_prompt(format_type: str, data_amount: int) -> str:
     base_prompts = {
-        "qa_format": "Generate {amount} question-answer pairs in the following format:\n{{\"question\": \"...\", \"answer\": \"...\"}}\nMake sure the data is relevant to: {context}, only answer with the format and make sure it is compatible with json, do not add any other text",
-        "chat_format": "Generate a chat conversation with {amount} messages in the following format:\n[{{\"role\": \"user\", \"content\": \"...\"}}, {{\"role\": \"assistant\", \"content\": \"...\"}}]\nMake the conversation relevant to: {context}, only answer with the format and make sure it is compatible with json, do not add any other text",
-        "completion_format": "Generate {amount} prompt-completion pairs in the following format:\n{{\"prompt\": \"...\", \"completion\": \"...\"}}\nBased on the context: {context}, only answer with the format and make sure it is compatible with json , do not add any other text",
-        "text_classification_format": "Generate {amount} classified text examples in the following format:\n{{\"text\": \"...\", \"label\": \"...\"}}\nMake the examples relevant to: {context}, only answer with the format and make sure it is compatible with json, do not add any other text",
-        "translation_format": "Generate {amount} translation pairs in the following format:\n{{\"source\": \"...\", \"target\": \"...\"}}\nConsider the context: {context}, only answer with the format and make sure it is compatible with json, do not add any other text",
-        "instruction_response_format": "Generate {amount} instruction-response pairs in the following format:\n{{\"instruction\": \"...\", \"input\": \"...\", \"output\": \"...\"}}\nBased on: {context}, only answer with the format and make sure it is compatible with json, do not add any other text",
-        "summarization_format": "Generate {amount} article-summary pairs in the following format:\n{{\"article\": \"...\", \"summary\": \"...\"}}\nRelated to: {context}, only answer with the format and make sure it is compatible with json, do not add any other text",
-        "dialogue_format": "Generate a dialogue with {amount} exchanges in the following format:\n[{{\"speaker\": \"A\", \"text\": \"...\"}}, {{\"speaker\": \"B\", \"text\": \"...\"}}]\nMake it relevant to: {context}, only answer with the format and make sure it is compatible with json, do not add any other text"
+        "qa_format": "Generate {amount} question-answer pairs in the following format:\n{{\"question\": \"...\", \"answer\": \"...\"}}\nMake sure the data is relevant to: {context}, only answer with the format and make sure it is compatible with json no matter what it takes,make sure the data is unique, do not add any other text",
+        "chat_format": "Generate a chat conversation with {amount} messages in the following format:\n[{{\"role\": \"user\", \"content\": \"...\"}}, {{\"role\": \"assistant\", \"content\": \"...\"}}]\nMake the conversation relevant to: {context}, only answer with the format and make sure it is compatible with json no matter what it takes,make sure the data is unique, do not add any other text",
+        "completion_format": "Generate {amount} prompt-completion pairs in the following format:\n{{\"prompt\": \"...\", \"completion\": \"...\"}}\nBased on the context: {context}, only answer with the format and make sure it is compatible with json no matter what it takes,make sure the data is unique, do not add any other text",
+        "text_classification_format": "Generate {amount} classified text examples in the following format:\n{{\"text\": \"...\", \"label\": \"...\"}}\nMake the examples relevant to: {context}, only answer with the format and make sure it is compatible with json no matter what it takes,make sure the data is unique, do not add any other text",
+        "translation_format": "Generate {amount} translation pairs in the following format:\n{{\"source\": \"...\", \"target\": \"...\"}}\nConsider the context: {context}, only answer with the format and make sure it is compatible with json no matter what it takes,make sure the data is unique, do not add any other text",
+        "instruction_response_format": "Generate {amount} instruction-response pairs in the following format:\n{{\"instruction\": \"...\", \"input\": \"...\", \"output\": \"...\"}}\nBased on: {context}, only answer with the format and make sure it is compatible with json no matter what it takes,make sure the data is unique, do not add any other text",
+        "summarization_format": "Generate {amount} article-summary pairs in the following format:\n{{\"article\": \"...\", \"summary\": \"...\"}}\nRelated to: {context}, only answer with the format and make sure it is compatible with json no matter what it takes,make sure the data is unique, do not add any other text",
+        "dialogue_format": "Generate a dialogue with {amount} exchanges in the following format:\n[{{\"speaker\": \"A\", \"text\": \"...\"}}, {{\"speaker\": \"B\", \"text\": \"...\"}}]\nMake it relevant to: {context}, only answer with the format and make sure it is compatible with json no matter what it takes,make sure the data is unique, do not add any other text"
     }
     return base_prompts.get(format_type, "Invalid format type")
 
